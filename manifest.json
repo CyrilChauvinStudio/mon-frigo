@@ -1,0 +1,14 @@
+{
+  "name": "Mon Frigo — Méditerranée",
+  "short_name": "Mon Frigo",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5EFE1",
+  "theme_color": "#0E4D50",
+  "icons": [
+    { "src": "icon-180.png",  "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
+  ]
+}

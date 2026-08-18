@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mon Frigo">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0E4D50">
+<title>Mon Frigo — Méditerranée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFE1;      /* papier chaud */
+    --ink:#0E4D50;        /* encre bleu Égée */
+    --ink-soft:#3A6E70;
+    --ochre:#E8A317;      /* soleil */
+    --red:#CC0000;        /* accent Cyril */
+    --olive:#5A6B3B;      /* "j'ai" */
+    --card:#FBF7EE;
+    --line:rgba(14,77,80,.16);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Instrument Sans",-apple-system,system-ui,sans-serif;
+    font-size:17px;line-height:1.45;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    min-height:100vh;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:22px 20px 60px}
+
+  /* Hero */
+  header{padding:14px 0 22px;border-bottom:3px solid var(--ink);margin-bottom:24px;position:relative}
+  .eyebrow{font-family:"Syne";font-weight:700;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--red)}
+  h1{font-family:"Syne";font-weight:800;font-size:clamp(34px,10vw,48px);line-height:.95;margin:6px 0 8px;letter-spacing:-.01em}
+  .sub{color:var(--ink-soft);font-size:15px;max-width:34ch}
+  .gear{position:absolute;top:10px;right:0;background:none;border:1.5px solid var(--line);color:var(--ink);
+    width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+  /* Sections */
+  .label{font-family:"Syne";font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+    display:flex;align-items:center;gap:9px;margin:0 0 12px}
+  .label .n{background:var(--ochre);color:var(--ink);width:22px;height:22px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 auto}
+
+  /* Saisie ingrédients */
+  .addrow{display:flex;gap:9px;margin-bottom:14px}
+  #ingInput{flex:1;background:var(--card);border:1.5px solid var(--line);border-radius:13px;
+    padding:14px 15px;font-size:17px;color:var(--ink);font-family:inherit}
+  #ingInput:focus{outline:none;border-color:var(--ink)}
+  #ingInput::placeholder{color:#A79E88}
+  .addbtn{background:var(--ink);color:var(--paper);border:none;border-radius:13px;width:52px;font-size:26px;
+    font-weight:600;cursor:pointer;flex:0 0 auto}
+  .addbtn:active{transform:scale(.95)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;min-height:4px}
+  .chip{background:var(--olive);color:#F5EFE1;border-radius:999px;padding:8px 12px 8px 14px;font-size:15px;font-weight:500;
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+  .chip span{opacity:.7;font-size:18px;line-height:1}
+  .empty{color:#A79E88;font-size:14px;font-style:italic}
+
+  .labelrow{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
+  .labelrow .label{margin:0}
+  .reset{background:none;border:none;color:var(--red);font-family:"Syne";font-weight:700;font-size:12px;
+    letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:6px 2px}
+  .reset:disabled{color:#B7AD97;cursor:default}
+
+  .taste{margin:20px 0 4px}
+  .taste summary{font-family:"Syne";font-weight:700;font-size:13px;letter-spacing:.06em;color:var(--ink-soft);
+    cursor:pointer;list-style:none;padding:4px 0}
+  .taste summary::-webkit-details-marker{display:none}
+  .taste summary::before{content:"＋ ";color:var(--red);font-weight:800}
+  .taste[open] summary::before{content:"－ "}
+  #taste{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:13px 14px;
+    font-size:15px;color:var(--ink);font-family:inherit;margin-top:10px;resize:vertical;min-height:78px}
+  #taste:focus{outline:none;border-color:var(--ink)}
+
+  /* Bouton action */
+  .cook{width:100%;background:var(--red);color:#fff;border:none;border-radius:15px;padding:19px;
+    font-family:"Syne";font-weight:800;font-size:19px;letter-spacing:.02em;margin-top:26px;cursor:pointer;
+    box-shadow:0 4px 0 #8f0000}
+  .cook:active{transform:translateY(3px);box-shadow:0 1px 0 #8f0000}
+  .cook:disabled{background:#b7ad97;box-shadow:0 4px 0 #948b78;cursor:default}
+
+  /* Résultats */
+  #out{margin-top:30px}
+  .status{text-align:center;color:var(--ink-soft);padding:22px;font-size:15px}
+  .status.err{color:var(--red)}
+  .spin{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--red);border-radius:50%;
+    margin:0 auto 12px;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  .recipe{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:20px 18px 18px;
+    margin-bottom:16px;position:relative;overflow:hidden}
+  .recipe::before{content:"";position:absolute;top:0;left:0;width:6px;height:100%;background:var(--ochre)}
+  .rtitle{font-family:"Syne";font-weight:800;font-size:22px;line-height:1.05;margin:0 0 4px;padding-left:4px}
+  .rtime{font-size:13px;color:var(--red);font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding-left:4px;margin-bottom:12px}
+  .rwhy{font-size:15px;color:var(--ink-soft);font-style:italic;padding-left:4px;margin-bottom:16px}
+  .rgrp{padding-left:4px;margin-bottom:14px}
+  .rgrp h4{font-family:"Syne";font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px}
+  .have h4{color:var(--olive)}.add h4{color:var(--red)}
+  .ings{display:flex;flex-wrap:wrap;gap:6px}
+  .ing{font-size:14px;padding:5px 11px;border-radius:999px;font-weight:500}
+  .have .ing{background:rgba(90,107,59,.14);color:var(--olive)}
+  .add .ing{background:rgba(204,0,0,.1);color:var(--red)}
+  ol.steps{margin:6px 0 0;padding-left:4px;list-style:none;counter-reset:s}
+  ol.steps li{position:relative;padding:0 0 12px 34px;counter-increment:s;font-size:15px}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:-1px;width:24px;height:24px;background:var(--ink);
+    color:var(--paper);border-radius:50%;font-family:"Syne";font-weight:700;font-size:13px;
+    display:flex;align-items:center;justify-content:center}
+
+  /* Réglages */
+  .sheet{position:fixed;inset:0;background:rgba(14,77,80,.55);display:none;align-items:flex-end;z-index:50}
+  .sheet.on{display:flex}
+  .panel{background:var(--paper);width:100%;max-width:640px;margin:0 auto;border-radius:20px 20px 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));border-top:4px solid var(--red)}
+  .panel h3{font-family:"Syne";font-weight:800;font-size:20px;margin:0 0 4px}
+  .panel p{font-size:14px;color:var(--ink-soft);margin:0 0 16px}
+  .panel input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px;
+    font-size:16px;font-family:inherit;color:var(--ink);margin-bottom:14px}
+  .panel input:focus{outline:none;border-color:var(--ink)}
+  .prow{display:flex;gap:10px}
+  .prow button{flex:1;border:none;border-radius:12px;padding:15px;font-family:"Syne";font-weight:700;font-size:15px;cursor:pointer}
+  .save{background:var(--ink);color:var(--paper)}
+  .close{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line)!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <button class="gear" id="gear" aria-label="Réglages">⚙</button>
+    <div class="eyebrow">Cuisine méditerranéenne</div>
+    <h1>Mon Frigo</h1>
+    <div class="sub">Dis-moi ce que tu as. Je te trouve quoi cuisiner — équilibré, ensoleillé, sans prise de tête.</div>
+  </header>
+
+  <div class="labelrow">
+    <div class="label"><span class="n">1</span> Ce que j'ai chez moi</div>
+    <button class="reset" id="resetBtn">Tout vider</button>
+  </div>
+  <div class="addrow">
+    <input id="ingInput" type="text" placeholder="feta, aubergine, riz…" autocomplete="off" enterkeyhint="done">
+    <button class="addbtn" id="addBtn" aria-label="Ajouter">＋</button>
+  </div>
+  <div class="chips" id="chips"><div class="empty">Ajoute tes ingrédients un par un.</div></div>
+
+  <details class="taste" id="tasteBox">
+    <summary>Mes goûts (optionnel)</summary>
+    <textarea id="taste" placeholder="Ce que j'aime…"></textarea>
+  </details>
+
+  <button class="cook" id="cook">Trouve mes recettes</button>
+
+  <div id="out"></div>
+</div>
+
+<!-- Réglages -->
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <h3>Réglages</h3>
+    <p>Colle ta clé API Anthropic pour faire tourner l'app sur ton iPhone. Elle reste sur ton téléphone, rien n'est envoyé ailleurs.</p>
+    <input id="keyInput" type="password" placeholder="sk-ant-…" autocomplete="off">
+    <div class="prow">
+      <button class="close" id="closeSet">Fermer</button>
+      <button class="save" id="saveSet">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_TASTE = "Salade feta / pastèque / concombre. Aubergines fondantes, sauce yaourt à l'ail + huile d'olive. Cuisine méditerranéenne simple, fraîche, colorée.";
+
+// --- Stockage (protégé : ne casse pas l'aperçu dans Claude) ---
+function load(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+let ings = [];
+try{ ings = JSON.parse(load('mf_ings','[]')) || []; }catch(e){ ings = []; }
+
+const $ = s => document.querySelector(s);
+const chipsEl=$('#chips'), inputEl=$('#ingInput'), tasteEl=$('#taste'), outEl=$('#out');
+
+tasteEl.value = load('mf_taste', DEFAULT_TASTE);
+$('#keyInput').value = load('mf_key','');
+
+function persist(){ save('mf_ings', JSON.stringify(ings)); }
+function renderChips(){
+  $('#resetBtn').disabled = !ings.length;
+  if(!ings.length){ chipsEl.innerHTML='<div class="empty">Ajoute tes ingrédients un par un.</div>'; return; }
+  chipsEl.innerHTML='';
+  ings.forEach((ing,i)=>{
+    const c=document.createElement('div'); c.className='chip';
+    c.innerHTML = ing.replace(/</g,'&lt;')+' <span>×</span>';
+    c.onclick=()=>{ ings.splice(i,1); persist(); renderChips(); };
+    chipsEl.appendChild(c);
+  });
+}
+function addIng(){
+  const raw=inputEl.value.trim(); if(!raw) return;
+  raw.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean).forEach(v=>{
+    if(!ings.some(x=>x.toLowerCase()===v.toLowerCase())) ings.push(v);
+  });
+  inputEl.value=''; persist(); renderChips(); inputEl.focus();
+}
+$('#addBtn').onclick=addIng;
+inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addIng(); } });
+tasteEl.addEventListener('input',()=>save('mf_taste',tasteEl.value));
+$('#resetBtn').onclick=()=>{
+  if(!ings.length) return;
+  if(confirm('Vider tout le frigo ?')){ ings=[]; persist(); renderChips(); }
+};
+renderChips();
+
+// --- Réglages ---
+$('#gear').onclick=()=>$('#sheet').classList.add('on');
+$('#closeSet').onclick=()=>$('#sheet').classList.remove('on');
+$('#sheet').onclick=e=>{ if(e.target===$('#sheet')) $('#sheet').classList.remove('on'); };
+$('#saveSet').onclick=()=>{ save('mf_key',$('#keyInput').value.trim()); $('#sheet').classList.remove('on'); };
+
+// --- Génération ---
+const cookBtn=$('#cook');
+
+async function cook(){
+  if(!ings.length){
+    outEl.innerHTML='<div class="status err">Ajoute d\'abord quelques ingrédients au point 1.</div>';
+    return;
+  }
+  cookBtn.disabled=true;
+  outEl.innerHTML='<div class="status"><div class="spin"></div>Je fouille tes placards…</div>';
+
+  const key = load('mf_key','').trim();
+  const sys = "Tu es un chef méditerranéen. À partir des ingrédients disponibles et des goûts de l'utilisateur, propose 3 idées de recettes méditerranéennes équilibrées, simples et savoureuses (privilégie légumes, huile d'olive, légumineuses, herbes, poisson ; peu de sucre). Utilise surtout ce que la personne a déjà, et ne propose que peu d'ingrédients à ajouter (courants, faciles à trouver). Réponds UNIQUEMENT en JSON valide, sans texte autour, sans balises Markdown, selon ce schéma exact : {\"recettes\":[{\"titre\":\"\",\"temps\":\"ex: 20 min\",\"pourquoi\":\"une phrase courte\",\"jai\":[\"ingrédient\"],\"aajouter\":[\"ingrédient\"],\"etapes\":[\"étape courte\"]}]}. 4 à 6 étapes par recette, en français.";
+  const usr = "Ingrédients chez moi : "+ings.join(", ")+".\nMes goûts : "+(tasteEl.value.trim()||"—");
+
+  const headers={'Content-Type':'application/json'};
+  const body={ max_tokens: 1000, messages:[{role:'user',content:usr}], system: sys };
+  if(key){                     // déployé sur iPhone / GitHub Pages : ta clé
+    headers['x-api-key']=key;
+    headers['anthropic-version']='2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access']='true';
+    body.model='claude-sonnet-5';
+    body.max_tokens=2048;
+  }else{                       // aperçu dans l'app Claude : clé gérée automatiquement
+    body.model='claude-sonnet-4-6';
+  }
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers,body:JSON.stringify(body)});
+    if(!res.ok){
+      let msg='Erreur '+res.status+'.';
+      if(res.status===401||res.status===403) msg='Clé API manquante ou invalide. Touche ⚙ en haut à droite pour la coller.';
+      throw new Error(msg);
+    }
+    const data=await res.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+    const clean=text.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    render(parsed.recettes||[]);
+  }catch(err){
+    outEl.innerHTML='<div class="status err">'+(err.message||'Une erreur est survenue.')+'<br><br>Réessaie dans un instant.</div>';
+  }finally{
+    cookBtn.disabled=false;
+  }
+}
+
+function esc(s){return String(s).replace(/</g,'&lt;')}
+function pills(arr,cls){ return (arr||[]).map(x=>'<span class="ing">'+esc(x)+'</span>').join('') ? 
+  '<div class="ings">'+(arr||[]).map(x=>'<span class="ing">'+esc(x)+'</span>').join('')+'</div>' : ''; }
+
+function render(recettes){
+  if(!recettes.length){ outEl.innerHTML='<div class="status">Aucune idée cette fois. Ajoute un ou deux ingrédients et réessaie.</div>'; return; }
+  outEl.innerHTML = recettes.map(r=>{
+    const have = (r.jai&&r.jai.length)? '<div class="rgrp have"><h4>J\'ai déjà</h4>'+pills(r.jai)+'</div>':'';
+    const add  = (r.aajouter&&r.aajouter.length)? '<div class="rgrp add"><h4>À ajouter</h4>'+pills(r.aajouter)+'</div>':'';
+    const steps= '<ol class="steps">'+(r.etapes||[]).map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>';
+    return '<div class="recipe">'+
+      '<div class="rtitle">'+esc(r.titre||'Recette')+'</div>'+
+      (r.temps?'<div class="rtime">'+esc(r.temps)+'</div>':'')+
+      (r.pourquoi?'<div class="rwhy">'+esc(r.pourquoi)+'</div>':'')+
+      have+add+steps+
+    '</div>';
+  }).join('');
+  outEl.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+cookBtn.onclick=cook;
+</script>
+</body>
+</html>
