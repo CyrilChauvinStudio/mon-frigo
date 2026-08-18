@@ -236,20 +236,22 @@ async function cook(){
   outEl.innerHTML='<div class="status"><div class="spin"></div>Je fouille tes placards…</div>';
 
   const key = load('mf_key','').trim();
+  if(!key){
+    cookBtn.disabled=false;
+    outEl.innerHTML='<div class="status err">Il manque ta clé API.<br><br>Touche <b>⚙</b> en haut à droite, colle ta clé Anthropic (sk-ant-…) et enregistre — <b>depuis l\'app ouverte sur l\'écran d\'accueil</b>.</div>';
+    $('#sheet').classList.add('on');
+    return;
+  }
   const sys = "Tu es un chef méditerranéen. À partir des ingrédients disponibles et des goûts de l'utilisateur, propose 3 idées de recettes méditerranéennes équilibrées, simples et savoureuses (privilégie légumes, huile d'olive, légumineuses, herbes, poisson ; peu de sucre). Utilise surtout ce que la personne a déjà, et ne propose que peu d'ingrédients à ajouter (courants, faciles à trouver). Réponds UNIQUEMENT en JSON valide, sans texte autour, sans balises Markdown, selon ce schéma exact : {\"recettes\":[{\"titre\":\"\",\"temps\":\"ex: 20 min\",\"pourquoi\":\"une phrase courte\",\"jai\":[\"ingrédient\"],\"aajouter\":[\"ingrédient\"],\"etapes\":[\"étape courte\"]}]}. 4 à 6 étapes par recette, en français.";
   const usr = "Ingrédients chez moi : "+ings.join(", ")+".\nMes goûts : "+(tasteEl.value.trim()||"—");
 
-  const headers={'Content-Type':'application/json'};
-  const body={ max_tokens: 1000, messages:[{role:'user',content:usr}], system: sys };
-  if(key){                     // déployé sur iPhone / GitHub Pages : ta clé
-    headers['x-api-key']=key;
-    headers['anthropic-version']='2023-06-01';
-    headers['anthropic-dangerous-direct-browser-access']='true';
-    body.model='claude-sonnet-5';
-    body.max_tokens=2048;
-  }else{                       // aperçu dans l'app Claude : clé gérée automatiquement
-    body.model='claude-sonnet-4-6';
-  }
+  const headers={
+    'Content-Type':'application/json',
+    'x-api-key':key,
+    'anthropic-version':'2023-06-01',
+    'anthropic-dangerous-direct-browser-access':'true'
+  };
+  const body={ model:'claude-sonnet-5', max_tokens:2048, system:sys, messages:[{role:'user',content:usr}] };
 
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers,body:JSON.stringify(body)});
@@ -264,7 +266,11 @@ async function cook(){
     const parsed=JSON.parse(clean);
     render(parsed.recettes||[]);
   }catch(err){
-    outEl.innerHTML='<div class="status err">'+(err.message||'Une erreur est survenue.')+'<br><br>Réessaie dans un instant.</div>';
+    let m = err.message || 'Une erreur est survenue.';
+    if(/load failed|failed to fetch|networkerror/i.test(m)){
+      m='Connexion à l\'API impossible. Vérifie ta clé dans <b>⚙</b> (colle-la depuis l\'app de l\'écran d\'accueil) et ta connexion internet.';
+    }
+    outEl.innerHTML='<div class="status err">'+m+'</div>';
   }finally{
     cookBtn.disabled=false;
   }
